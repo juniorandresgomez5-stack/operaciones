@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Seguimiento individual de metas, recibidas, procesadas y existencias para seis proyectos.">
+  <title>Analítica de proyectos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">AP</div><div><strong>Analítica</strong><span>Proyectos y cajas</span></div></div>
+    <nav class="nav" aria-label="Navegación principal">
+      <button class="nav-link active" data-view="dashboard"><span>▦</span> Resumen</button>
+      <button class="nav-link" data-view="projects"><span>◫</span> Proyectos</button>
+      <button class="nav-link" data-view="daily"><span>▤</span> Registro diario</button>
+      <button class="nav-link" data-view="charts"><span>⌁</span> Gráficos diarios</button>
+      <button class="nav-link" data-view="history"><span>◷</span> Historial</button>
+    </nav>
+    <div class="sidebar-footer"><span class="status-dot"></span><div><strong>Modo de prueba</strong><small>Datos guardados en este navegador</small></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar"><div><p class="eyebrow">ESPACIO DE TRABAJO</p><h1 id="page-title">Resumen general</h1></div><div class="topbar-actions"><span class="today" id="today-label"></span><button class="button button-primary" data-go="daily">+ Registrar día</button></div></header>
+
+    <section class="view active" id="view-dashboard">
+      <div class="welcome-card"><div><p class="eyebrow light">SEGUIMIENTO OPERATIVO</p><h2>Cada proyecto lleva sus propias cuentas.</h2><p>Consulta recibidas, procesadas, restantes y cumplimiento de la meta diaria por proyecto.</p></div><div class="welcome-symbol" aria-hidden="true">↗</div></div>
+      <div class="section-heading"><div><h2>Resumen</h2><p>Los totales reúnen proyectos independientes; el detalle y cumplimiento se calcula por proyecto.</p></div></div>
+      <div class="metrics-grid">
+        <article class="metric-card"><div class="metric-top"><span>Proyectos</span><span class="metric-icon">◫</span></div><strong id="metric-projects">6</strong><small>Proyectos configurados</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Cajas recibidas</span><span class="metric-icon">↓</span></div><strong id="metric-received">0</strong><small>Acumulado de los proyectos</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Cajas procesadas</span><span class="metric-icon">✓</span></div><strong id="metric-processed">0</strong><small>Acumulado de los proyectos</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Cajas restantes</span><span class="metric-icon">▣</span></div><strong id="metric-remaining">0</strong><small>Iniciales + recibidas − procesadas</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Faltan para metas globales</span><span class="metric-icon">◎</span></div><strong id="metric-global-shortfall">0</strong><small>Suma de faltantes por proyecto</small></article>
+      </div>
+      <div class="section-heading"><div><h2>Los seis proyectos</h2><p>La meta diaria se cumple según las cajas procesadas en ese proyecto.</p></div></div>
+      <div id="dashboard-projects" class="projects-grid dashboard-projects"></div>
+      <article class="panel chart-panel"><div class="panel-heading"><div><h2>Recibidas y procesadas por proyecto</h2><p>Cada par de barras pertenece únicamente al proyecto indicado.</p></div></div><div id="project-chart" class="bar-chart" role="img" aria-label="Comparación de cajas recibidas y procesadas por proyecto"></div><div class="chart-legend"><span><i class="legend-received"></i> Recibidas</span><span><i class="legend-processed"></i> Procesadas</span></div></article>
+    </section>
+
+    <section class="view" id="view-projects">
+      <div class="section-heading"><div><h2>Proyectos</h2><p>Configura por separado la existencia inicial y las metas de cada proyecto.</p></div></div>
+      <div id="all-projects" class="projects-grid"></div>
+    </section>
+
+    <section class="view" id="view-daily">
+      <div class="section-heading"><div><h2>Registro diario por proyecto</h2><p>Guarda meta, cajas recibidas y procesadas para un proyecto y una fecha.</p></div></div>
+      <article class="panel form-panel"><form id="project-record-form"><div class="form-grid">
+        <label>Proyecto<select id="project-record-project" name="proyectoId" required></select></label>
+        <label>Fecha<input name="fecha" type="date" required></label>
+        <label>Cajas recibidas<input name="recibidas" type="number" min="0" step="1" value="0" required></label>
+        <label class="full">Cajas procesadas<input name="procesadas" type="number" min="0" step="1" value="0" required></label>
+      </div><div class="record-targets"><span>Meta diaria fija: <strong id="record-daily-goal">0</strong></span><span>Meta global: <strong id="record-global-goal">0</strong></span></div><p id="record-preview" class="form-hint">Selecciona un proyecto para consultar su meta, balance y cumplimiento del día.</p><div class="form-actions"><button class="button button-primary" type="submit">Guardar movimiento</button></div></form></article>
+      <div id="daily-project-summary" class="projects-grid daily-project-summary"></div>
+    </section>
+
+    <section class="view" id="view-charts">
+      <div class="section-heading"><div><h2>Gráficos diarios</h2><p>Compara la meta diaria con lo procesado y consulta el avance acumulado hacia la meta global.</p></div></div>
+      <article class="panel chart-filters"><div class="filter-row chart-filter-row">
+        <label>Proyecto<select id="chart-project"></select></label>
+        <label>Desde<input id="chart-from" type="date"></label>
+        <label>Hasta<input id="chart-to" type="date"></label>
+      </div><small class="muted">Elige un proyecto. Deja las fechas vacías para ver todo su historial o selecciona un rango.</small></article>
+      <div class="metrics-grid chart-period-metrics">
+        <article class="metric-card"><div class="metric-top"><span>Recibidas en el periodo</span><span class="metric-icon">↓</span></div><strong id="chart-total-received">0</strong><small>Suma de movimientos del rango</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Procesadas en el periodo</span><span class="metric-icon">✓</span></div><strong id="chart-total-processed">0</strong><small>Suma de movimientos del rango</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Cumplimiento del periodo</span><span class="metric-icon">◎</span></div><strong id="chart-period-compliance">—</strong><small id="chart-period-compliance-note">Procesadas ÷ metas diarias</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Avance global al final</span><span class="metric-icon">↗</span></div><strong id="chart-global-progress">—</strong><small id="chart-global-progress-note">Meta global del proyecto</small></article>
+      </div>
+      <div class="notice-card chart-reading-help"><strong>Cómo usar y leer los gráficos</strong><p>Elige el proyecto y, si quieres, un rango de fechas. En <b>Meta diaria frente a procesadas</b>, cada fecha compara dos barras: gris = meta; ámbar = faltaron cajas; verde = meta cumplida; azul = meta superada. Debajo de cada fecha verás el porcentaje procesado ÷ meta diaria × 100; pasa el cursor sobre las barras para ver cajas y faltantes o excedentes exactos. En <b>Avance de la meta global</b>, la línea muestra las procesadas acumuladas ÷ meta global; no vuelve a cero cada día. Si filtras desde una fecha, el acumulado global incluye lo procesado antes del rango. La tabla inferior conserva el detalle exacto.</p></div>
+      <article class="panel line-chart-panel"><div class="panel-heading"><div><h2>Meta diaria frente a procesadas</h2><p>Dos barras por día y el porcentaje de cumplimiento debajo de cada fecha.</p></div></div><div id="daily-goal-bars" class="line-chart daily-bar-chart"></div></article>
+      <article class="panel line-chart-panel"><div class="panel-heading"><div><h2>Avance de la meta global</h2><p>Procesadas acumuladas del proyecto frente a su meta global.</p></div></div><div id="global-percent-chart" class="line-chart"></div></article>
+      <article class="panel"><div class="panel-heading"><div><h2>Detalle diario</h2><p>Cifras exactas del proyecto para cada fecha del periodo.</p></div></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Recibidas</th><th>Procesadas</th><th>Meta diaria</th><th>Cumplimiento diario</th><th>Faltan / excedente</th><th>Procesadas acumuladas</th><th>Avance global</th><th>Faltan meta global</th></tr></thead><tbody id="chart-data-body"></tbody></table></div></article>
+    </section>
+
+    <section class="view" id="view-history">
+      <div class="section-heading"><div><h2>Historial por proyecto</h2><p>Consulta las metas, recibidas, procesadas, cumplimiento y saldo diario.</p></div><button id="export-projects" class="button button-secondary">Exportar CSV</button></div>
+      <article class="panel">
+        <div class="filter-row"><label>Proyecto<select id="history-project"><option value="">Todos los proyectos</option></select></label><label>Fecha<input id="history-date" type="date"></label></div>
+        <h3>Resumen diario</h3><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Proyecto</th><th>Meta diaria</th><th>Recibidas</th><th>Procesadas</th><th>Cumplimiento</th><th>Faltan meta diaria</th><th>Avance global</th><th>Faltan meta global</th><th>Restantes</th></tr></thead><tbody id="project-history-body"></tbody></table></div>
+      </article>
+      <article class="panel"><div class="panel-heading"><div><h2>Detalle de movimientos</h2><p>Cada guardado aparece como una línea de evidencia; las recepciones del mismo día se conservan y acumulan.</p></div></div><div class="table-wrap"><table><thead><tr><th>Fecha y hora</th><th>Proyecto</th><th>Meta diaria registrada</th><th>Meta global registrada</th><th>Recibidas</th><th>Procesadas</th></tr></thead><tbody id="movement-history-body"></tbody></table></div></article>
+    </section>
+
+    <footer class="footer">Analítica de proyectos <span>·</span> prototipo local</footer>
+  </main>
+  <template id="project-card-template">
+    <article class="project-card">
+      <div class="project-card-top"><div class="project-avatar" data-bind="avatar"></div><span class="pill daily-badge" data-bind="daily-badge"></span></div>
+      <h3 data-bind="project-name"></h3>
+      <div class="project-stats">
+        <div><small>Recibidas acumuladas</small><strong data-bind="received"></strong></div>
+        <div><small>Procesadas acumuladas</small><strong data-bind="processed"></strong></div>
+        <div><small>Restantes</small><strong data-bind="remaining"></strong></div>
+        <div><small data-bind="daily-label"></small><strong data-bind="daily-total"></strong></div>
+      </div>
+      <div class="progress-caption"><span data-bind="global-caption"></span><span data-bind="global-percent"></span></div>
+      <div class="progress-track"><div class="progress-fill" data-bind="global-progress"></div></div>
+      <div class="global-proof"><strong data-bind="global-missing"></strong> para la meta global de procesamiento.</div>
+      <div class="project-foot"><span data-bind="deadline"></span><span data-bind="required-pace"></span></div>
+    </article>
+  </template>
+  <template id="project-editor-template">
+    <article class="project-card project-editor">
+      <div class="project-card-top"><div class="project-avatar" data-bind="avatar"></div><span class="pill daily-badge" data-bind="daily-badge"></span></div>
+      <form class="project-config-form">
+        <label>Nombre del proyecto<input name="nombre" type="text" maxlength="80" required></label>
+        <div class="project-stats">
+          <div><small>Recibidas acumuladas</small><strong data-bind="received"></strong></div>
+          <div><small>Procesadas acumuladas</small><strong data-bind="processed"></strong></div>
+          <div><small>Restantes</small><strong data-bind="remaining"></strong></div>
+          <div><small data-bind="daily-label"></small><strong data-bind="daily-total"></strong></div>
+        </div>
+        <label>Cajas iniciales<input name="cajasIniciales" type="number" min="0" step="1" required></label>
+        <label>Meta diaria fija de procesamiento<input name="metaDiaria" type="number" min="0" step="1" required></label>
+        <label>Meta global de procesamiento<input name="metaGlobal" type="number" min="0" step="1" required></label>
+        <label>Fecha límite<input name="fechaLimite" type="date" required></label>
+        <button class="button button-secondary button-small" type="submit">Guardar configuración</button>
+      </form>
+    </article>
+  </template>
+  <template id="project-bar-row-template">
+    <div class="bar-row">
+      <div class="bar-label" data-bind="project-name"></div>
+      <div class="bar-lines">
+        <div class="bar-line"><span class="bar-value" data-bind="received"></span><div class="bar-track"><i class="bar-received" data-bind="received-bar"></i></div></div>
+        <div class="bar-line"><span class="bar-value" data-bind="processed"></span><div class="bar-track"><i class="bar-processed" data-bind="processed-bar"></i></div></div>
+      </div>
+    </div>
+  </template>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/controlador-interfaz.js"></script>
+</body>
+</html>
